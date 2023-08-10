@@ -35,7 +35,7 @@ mapfile -t subdirs < <(find "${basedir}" -mindepth 1 -type d)
 
 #number of elements in the array is more than 0
 if [[ "${#subdirs[@]}" -gt 0 ]]; then
-    echo "Subdirectories found:"
+    echo -e "\n\nSubdirectories found:"
 
     # Loop through each subdirectory
     for dir in "${subdirs[@]}"
@@ -44,11 +44,17 @@ if [[ "${#subdirs[@]}" -gt 0 ]]; then
         echo "${dir}"
 
      #check if there are spaces in subdir names
+     echo "Checking for spaces in filename..."
         if [[ "${dir}" == *" "* ]]
         then
-            newdir="${dir// /_}"  # Replace spaces with underscores
-            mv "${dir}" "${newdir}"
+
+        # Replace spaces with underscores
+            newdir="${dir// /_}"  
+
+        #Rename directory with new name with _
+            mv "${dir}" "${newdir}" || exit 1
             echo "Renamed: ${dir} to ${newdir}"
+
             # we enter each sub directory present
             echo "Entering ${newdir} ..."
             cd ${newdir} || exit 1
@@ -56,12 +62,14 @@ if [[ "${#subdirs[@]}" -gt 0 ]]; then
             #while we are in each sub directory, we list all file types provided
             for file in ${file_args[@]}
                 do
-                    ls -la *.${file}
+                    # ls -la *.${file}
+                    echo "Removing all .${file} files from $(pwd)"
+                    rm *.${file}
 
                 done
 
             #we go back to where base directory
-            echo "Returning to Base..."
+            echo -e "Returning to Base...\n\n"
             cd -
         #if there are no spaces in the filenames
         else
@@ -73,12 +81,15 @@ if [[ "${#subdirs[@]}" -gt 0 ]]; then
             #while we are in each sub directory, we list all file types provided
             for file in ${file_args[@]}
                 do
-                    ls -la *.${file}
+                    # ls -la *.${file}
+                    echo "Removing all .${file} files from $(pwd)"
+                    rm *.${file}
+
 
                 done
 
             #we go back to where base directory
-            echo "Returning to Base..."
+            echo -e "Returning to Base... \n\n"
             cd -
         fi
     done
@@ -87,7 +98,10 @@ else
     # we perform the action in the directory provided
     for file in ${file_args[@]}
             do
-                ls -la *.${file}
+                # ls -la *.${file}
+                echo "Removing all .${file} files from $(pwd)"
+                rm *.${file}
 
             done
 fi
+echo "done"

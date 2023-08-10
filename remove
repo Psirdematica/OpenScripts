@@ -1,0 +1,93 @@
+#! /bin/bash
+
+: ' 
+This script was written with love by Joseph Sedem Setosafia for Psirdematica
+To help remove repeatitive boring files in folders
+'
+
+
+#get total number of args passed
+num_of_args=$#
+
+#create an array of all the args passed
+args=("$@")
+
+#get the last arg passed
+path_arg=${@: -1}
+
+#all args passed except the last
+#array slice of all args from 0 to n-1
+file_args=("${args[@]:0:$(( num_of_args - 1 ))}") 
+
+# show a file types to perform action on
+echo "We are looking for .${file_args[@]} files"
+
+
+#now we enter the path argument provided
+echo "I'm in ${path_arg} directory..."
+cd ${path_arg}
+
+#set basedir path
+basedir="./"
+
+#check if there are subdirectories in base dir and dump them in a subdirs array
+mapfile -t subdirs < <(find "${basedir}" -mindepth 1 -type d)
+
+#number of elements in the array is more than 0
+if [[ "${#subdirs[@]}" -gt 0 ]]; then
+    echo "Subdirectories found:"
+
+    # Loop through each subdirectory
+    for dir in "${subdirs[@]}"
+     do
+    #we can choose to show the subdirectories names in the subdirs array
+        echo "${dir}"
+
+     #check if there are spaces in subdir names
+        if [[ "${dir}" == *" "* ]]
+        then
+            newdir="${dir// /_}"  # Replace spaces with underscores
+            mv "${dir}" "${newdir}"
+            echo "Renamed: ${dir} to ${newdir}"
+            # we enter each sub directory present
+            echo "Entering ${newdir} ..."
+            cd ${newdir} || exit 1
+
+            #while we are in each sub directory, we list all file types provided
+            for file in ${file_args[@]}
+                do
+                    ls -la *.${file}
+
+                done
+
+            #we go back to where base directory
+            echo "Returning to Base..."
+            cd -
+        #if there are no spaces in the filenames
+        else
+            echo "No spaces found in: ${dir}"
+            # we enter each sub directory present
+            echo "Entering ${dir} ..."
+            cd ${dir} || exit 1
+
+            #while we are in each sub directory, we list all file types provided
+            for file in ${file_args[@]}
+                do
+                    ls -la *.${file}
+
+                done
+
+            #we go back to where base directory
+            echo "Returning to Base..."
+            cd -
+        fi
+    done
+else
+    # echo "No subdirectories found in the directory."
+    # we perform the action in the directory provided
+    for file in ${file_args[@]}
+            do
+                ls -la *.${file}
+
+            done
+fi

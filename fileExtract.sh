@@ -1,6 +1,6 @@
 #! /bin/bash
 
-:'
+: '
 Created With Love by 
 JOSEPH SEDEM SETSOAFIA (Psridem)
 For Psirdematica 
